@@ -15,7 +15,7 @@ A simple customer support agent simulation demonstrating [Noesis SDK](https://no
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/tankhiwale-rohan/example-nextjs-agent.git
+git clone https://github.com/Noesis-Yuktam/example-nextjs-agent.git
 cd example-nextjs-agent
 ```
 
