@@ -10,6 +10,72 @@ A simple customer support agent simulation demonstrating [Noesis SDK](https://no
 - **Noesis Integration**: Ingests events at each step for full observability
 - **Auto-Simulation Mode**: Continuously generates simulated customer interactions for demo purposes
 
+## Prerequisites
+
+Before running this demo, you need:
+
+1. **Noesis Account** - Access to a Noesis instance with admin permissions
+2. **GitHub Token** - Personal access token with `read:packages` scope (for installing the SDK)
+3. **Node.js 18+** - Required for the Next.js application
+
+## Noesis Setup (Admin Required)
+
+Before running the demo, you must register an Agent in Noesis to get an API key.
+
+### Step 1: Log in to Noesis
+
+Log in to your Noesis instance (e.g., `https://your-instance.noesis-yuktam.com`).
+
+### Step 2: Create an Agent Group (if needed)
+
+If you don't have an agent group yet, create one via the API:
+
+```bash
+# Get a JWT token
+TOKEN=$(curl -s -X POST https://your-instance.backend.noesis-yuktam.com/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "your-email", "password": "your-password"}' | jq -r '.token')
+
+# Create agent group
+curl -X POST https://your-instance.backend.noesis-yuktam.com/api/v1/config/agent-groups \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{
+    "name": "example-agents",
+    "description": "Example agents for SDK demos"
+  }'
+```
+
+Note the returned `id` for the next step.
+
+### Step 3: Register an Agent
+
+Register an agent to get an API key:
+
+```bash
+curl -X POST https://your-instance.backend.noesis-yuktam.com/api/v1/config/agents \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{
+    "agent_group_id": "YOUR_AGENT_GROUP_ID",
+    "name": "example-nextjs-agent",
+    "description": "Customer support agent demo"
+  }'
+```
+
+**Important:** The response includes an `api_key` field that is shown **only once**. Save it immediately:
+
+```json
+{
+  "api_key": {
+    "key": "noesis_xxxxxxxxxxxxxxxx",
+    "name": "default"
+  }
+}
+```
+
+This `key` value is your `NOESIS_API_KEY`.
+
 ## Quick Start
 
 ### 1. Clone the Repository
@@ -21,16 +87,14 @@ cd example-nextjs-agent
 
 ### 2. Configure npm for GitHub Packages
 
-The Noesis SDK is distributed via GitHub Packages. You need a GitHub personal access token with `read:packages` scope.
-
-Create or edit `~/.npmrc` (or `.npmrc` in your project root):
+The Noesis SDK is distributed via GitHub Packages. Create or edit `~/.npmrc`:
 
 ```
 @noesis-yuktam:registry=https://npm.pkg.github.com
 //npm.pkg.github.com/:_authToken=YOUR_GITHUB_TOKEN
 ```
 
-Replace `YOUR_GITHUB_TOKEN` with your personal access token.
+Replace `YOUR_GITHUB_TOKEN` with your personal access token (needs `read:packages` scope).
 
 ### 3. Install Dependencies
 
@@ -40,17 +104,20 @@ npm install
 
 ### 4. Set Environment Variables
 
-Copy the example env file and configure your Noesis credentials:
+Copy the example env file:
 
 ```bash
 cp .env.example .env
 ```
 
-Edit `.env`:
+Edit `.env` with your Noesis credentials:
 
-```
-NOESIS_BASE_URL=https://your-noesis-instance.com
-NOESIS_API_KEY=your-api-key
+```bash
+# Your Noesis backend API endpoint
+NOESIS_BASE_URL=https://your-instance.backend.noesis-yuktam.com
+
+# API key from agent registration (Step 3 above)
+NOESIS_API_KEY=noesis_xxxxxxxxxxxxxxxx
 ```
 
 ### 5. Run the Development Server
@@ -123,34 +190,46 @@ await client.ingest({
 | `tool_result` | Tool execution result |
 | `agent_response` | Final response sent to customer |
 
-## Deploy to Railway
+## Deploy to Railway (Optional)
 
 ### Prerequisites
 
 - [Railway CLI](https://docs.railway.app/develop/cli) installed
-- Access to the Railway project
+- A Railway project created
 
 ### Deployment Steps
 
-1. **Link to the Railway project:**
+1. **Create a Railway project and link:**
 
 ```bash
-railway link 36361720-86b2-4c1b-9522-bcfc9ade697f
-railway environment production-agents
+railway init
+# Or link to existing project:
+railway link
 ```
 
-2. **Set environment variables in Railway:**
+2. **Add a service:**
 
-Go to your Railway project dashboard and add:
+```bash
+railway add --service example-nextjs-agent
+railway link --service example-nextjs-agent
+```
 
-- `NOESIS_BASE_URL` - Your Noesis API endpoint
-- `NOESIS_API_KEY` - Your Noesis API key
-- `NPM_TOKEN` - GitHub token with `read:packages` scope (for installing the SDK)
+3. **Set environment variables in Railway dashboard:**
 
-3. **Deploy:**
+- `NOESIS_BASE_URL` - Your Noesis backend API endpoint
+- `NOESIS_API_KEY` - Your agent's API key (from Noesis agent registration)
+- `NPM_TOKEN` - GitHub token with `read:packages` scope
+
+4. **Deploy:**
 
 ```bash
 railway up
+```
+
+5. **Add a public domain:**
+
+```bash
+railway domain
 ```
 
 ## Project Structure
@@ -171,10 +250,26 @@ example-nextjs-agent/
 │   │   └── scenarios.ts      # Demo scenarios for auto-simulation
 │   └── types/
 │       └── index.ts          # TypeScript types
-├── railway.json              # Railway deployment config
 ├── .env.example              # Environment variables template
-└── .npmrc.example            # npm config for GitHub Packages
+├── .npmrc                    # npm config for GitHub Packages (uses env vars)
+└── railway.json              # Railway deployment config
 ```
+
+## Troubleshooting
+
+### "Not found" error when installing SDK
+
+Ensure your `.npmrc` is configured correctly with a valid GitHub token that has `read:packages` scope.
+
+### Events not appearing in Noesis
+
+1. Verify `NOESIS_BASE_URL` points to the backend API (includes `/backend` in subdomain)
+2. Verify `NOESIS_API_KEY` is valid and not expired
+3. Check the browser console or server logs for error messages
+
+### Agent not visible in Noesis UI
+
+Make sure you're logged into the same organization where the agent was registered.
 
 ## License
 
