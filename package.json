@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "preinstall": "echo '@noesis-yuktam:registry=https://npm.pkg.github.com' > .npmrc && echo '//npm.pkg.github.com/:_authToken=${NPM_TOKEN}' >> .npmrc",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
