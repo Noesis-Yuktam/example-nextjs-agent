@@ -228,7 +228,7 @@ export default function Home() {
       <footer className="footer">
         <p>
           Events are ingested to <a href="https://noesis.dev" target="_blank" rel="noopener noreferrer">Noesis</a> for observability.
-          View the <a href="https://github.com/tankhiwale-rohan/example-nextjs-agent" target="_blank" rel="noopener noreferrer">source code</a>.
+          View the <a href="https://github.com/Noesis-Yuktam/example-nextjs-agent" target="_blank" rel="noopener noreferrer">source code</a>.
         </p>
       </footer>
     </div>
