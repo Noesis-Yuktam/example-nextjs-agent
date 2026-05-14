@@ -67,14 +67,15 @@ create_policy() {
 # Policy 1: PII Guard
 create_policy "pii_guard" "Flags responses containing potential PII (SSN, credit cards)" '
 package pii_guard
+import rego.v1
 
-violations[msg] {
+violations contains msg if {
     response := input.response
     regex.match(`\d{3}-\d{2}-\d{4}`, response)
     msg := "Response may contain Social Security Number"
 }
 
-violations[msg] {
+violations contains msg if {
     response := input.response
     regex.match(`\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}`, response)
     msg := "Response may contain credit card number"
@@ -84,13 +85,14 @@ violations[msg] {
 # Policy 2: Confidence Guard
 create_policy "confidence_guard" "Flags low-confidence intent classifications" '
 package confidence_guard
+import rego.v1
 
-violations[msg] {
+violations contains msg if {
     input.confidence < 0.6
     msg := sprintf("Intent classification confidence %.0f%% is below 60%% threshold", [input.confidence * 100])
 }
 
-violations[msg] {
+violations contains msg if {
     input.intent == "refund_request"
     input.confidence < 0.8
     msg := sprintf("Refund action requires >80%% confidence, got %.0f%%", [input.confidence * 100])
@@ -100,13 +102,14 @@ violations[msg] {
 # Policy 3: Complaint Escalation
 create_policy "complaint_escalation" "Escalates severe complaints for human review" '
 package complaint_escalation
+import rego.v1
 
 severe_keywords := ["lawsuit", "lawyer", "attorney", "fraud", "scam", "sue", "legal action"]
 
-violations[msg] {
+violations contains msg if {
     input.intent == "complaint"
     message := lower(input.user_message)
-    keyword := severe_keywords[_]
+    some keyword in severe_keywords
     contains(message, keyword)
     msg := sprintf("Complaint contains severe keyword - escalate to supervisor: %s", [keyword])
 }
@@ -115,8 +118,9 @@ violations[msg] {
 # Policy 4: Response Quality
 create_policy "response_quality" "Ensures agent responses meet quality standards" '
 package response_quality
+import rego.v1
 
-violations[msg] {
+violations contains msg if {
     response := input.response
     count(response) < 50
     msg := "Response is too short - may not adequately address customer"
@@ -124,9 +128,9 @@ violations[msg] {
 
 generic_phrases := ["i dont know", "i cant help", "please hold"]
 
-violations[msg] {
+violations contains msg if {
     response := lower(input.response)
-    phrase := generic_phrases[_]
+    some phrase in generic_phrases
     contains(response, phrase)
     msg := sprintf("Response contains generic phrase: %s", [phrase])
 }
@@ -135,14 +139,15 @@ violations[msg] {
 # Policy 5: Tool Authorization
 create_policy "tool_guard" "Controls tool usage based on context" '
 package tool_guard
+import rego.v1
 
-violations[msg] {
+violations contains msg if {
     input.tool == "process_refund"
     not input.order_verified
     msg := "Cannot process refund without verifying order first"
 }
 
-violations[msg] {
+violations contains msg if {
     input.tool == "log_complaint"
     input.priority == "high"
     msg := "High-priority complaint logged - supervisor notification recommended"
@@ -152,12 +157,13 @@ violations[msg] {
 # Policy 6: Content Filter
 create_policy "content_filter" "Blocks inappropriate content in responses" '
 package content_filter
+import rego.v1
 
 prohibited_words := ["damn", "hell", "crap", "stupid"]
 
-violations[msg] {
+violations contains msg if {
     response := lower(input.response)
-    word := prohibited_words[_]
+    some word in prohibited_words
     contains(response, word)
     msg := "Response contains prohibited word"
 }
