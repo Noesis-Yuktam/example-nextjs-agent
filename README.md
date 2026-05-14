@@ -12,69 +12,15 @@ A simple customer support agent simulation demonstrating [Noesis SDK](https://no
 
 ## Prerequisites
 
-Before running this demo, you need:
+Before running this demo, you need credentials from your Noesis administrator:
 
-1. **Noesis Account** - Access to a Noesis instance with admin permissions
-2. **GitHub Token** - Personal access token with `read:packages` scope (for installing the SDK)
-3. **Node.js 18+** - Required for the Next.js application
+| Credential | Description |
+|------------|-------------|
+| **NOESIS_BASE_URL** | Your Noesis backend API endpoint |
+| **NOESIS_API_KEY** | API key for your registered agent |
+| **GitHub Token** | Personal access token with `read:packages` scope (for SDK installation) |
 
-## Noesis Setup (Admin Required)
-
-Before running the demo, you must register an Agent in Noesis to get an API key.
-
-### Step 1: Log in to Noesis
-
-Log in to your Noesis instance (e.g., `https://your-instance.noesis-yuktam.com`).
-
-### Step 2: Create an Agent Group (if needed)
-
-If you don't have an agent group yet, create one via the API:
-
-```bash
-# Get a JWT token
-TOKEN=$(curl -s -X POST https://your-instance.backend.noesis-yuktam.com/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email": "your-email", "password": "your-password"}' | jq -r '.token')
-
-# Create agent group
-curl -X POST https://your-instance.backend.noesis-yuktam.com/api/v1/config/agent-groups \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $TOKEN" \
-  -d '{
-    "name": "example-agents",
-    "description": "Example agents for SDK demos"
-  }'
-```
-
-Note the returned `id` for the next step.
-
-### Step 3: Register an Agent
-
-Register an agent to get an API key:
-
-```bash
-curl -X POST https://your-instance.backend.noesis-yuktam.com/api/v1/config/agents \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $TOKEN" \
-  -d '{
-    "agent_group_id": "YOUR_AGENT_GROUP_ID",
-    "name": "example-nextjs-agent",
-    "description": "Customer support agent demo"
-  }'
-```
-
-**Important:** The response includes an `api_key` field that is shown **only once**. Save it immediately:
-
-```json
-{
-  "api_key": {
-    "key": "noesis_xxxxxxxxxxxxxxxx",
-    "name": "default"
-  }
-}
-```
-
-This `key` value is your `NOESIS_API_KEY`.
+Contact your Noesis administrator to provision an agent and receive these credentials.
 
 ## Quick Start
 
@@ -87,7 +33,7 @@ cd example-nextjs-agent
 
 ### 2. Configure npm for GitHub Packages
 
-The Noesis SDK is distributed via GitHub Packages. Create or edit `~/.npmrc`:
+Create or edit `~/.npmrc` (or `.npmrc` in your project root):
 
 ```
 @noesis-yuktam:registry=https://npm.pkg.github.com
@@ -110,13 +56,10 @@ Copy the example env file:
 cp .env.example .env
 ```
 
-Edit `.env` with your Noesis credentials:
+Edit `.env` with credentials from your Noesis administrator:
 
 ```bash
-# Your Noesis backend API endpoint
 NOESIS_BASE_URL=https://your-instance.backend.noesis-yuktam.com
-
-# API key from agent registration (Step 3 above)
 NOESIS_API_KEY=noesis_xxxxxxxxxxxxxxxx
 ```
 
@@ -216,8 +159,8 @@ railway link --service example-nextjs-agent
 
 3. **Set environment variables in Railway dashboard:**
 
-- `NOESIS_BASE_URL` - Your Noesis backend API endpoint
-- `NOESIS_API_KEY` - Your agent's API key (from Noesis agent registration)
+- `NOESIS_BASE_URL` - Your Noesis backend API endpoint (from Noesis admin)
+- `NOESIS_API_KEY` - Your agent's API key (from Noesis admin)
 - `NPM_TOKEN` - GitHub token with `read:packages` scope
 
 4. **Deploy:**
@@ -263,13 +206,16 @@ Ensure your `.npmrc` is configured correctly with a valid GitHub token that has 
 
 ### Events not appearing in Noesis
 
-1. Verify `NOESIS_BASE_URL` points to the backend API (includes `/backend` in subdomain)
-2. Verify `NOESIS_API_KEY` is valid and not expired
+1. Verify `NOESIS_BASE_URL` points to the backend API (includes `backend` in subdomain)
+2. Verify `NOESIS_API_KEY` is valid and was provided by your Noesis administrator
 3. Check the browser console or server logs for error messages
 
-### Agent not visible in Noesis UI
+### Need admin access?
 
-Make sure you're logged into the same organization where the agent was registered.
+This demo requires only an API key - no admin access needed. Contact your Noesis administrator if you need:
+- Additional agents registered
+- Rate limits adjusted
+- Custom policies configured
 
 ## License
 
