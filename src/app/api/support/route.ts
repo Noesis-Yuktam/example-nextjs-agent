@@ -31,13 +31,16 @@ export async function POST(request: NextRequest) {
   const intent = classifyIntent(message);
 
   if (noesis) {
+    // Enable policy evaluation to check confidence thresholds
     await noesis.ingest({
       source: 'customer-support-agent',
       event_type: 'intent_classification',
       trace_id: traceId,
+      evaluate: true,
       payload: {
         user_message: message,
         detected_intent: intent.intent,
+        intent: intent.intent,
         confidence: intent.confidence,
       },
       metadata: { model: 'rule-based-classifier' },
@@ -49,13 +52,16 @@ export async function POST(request: NextRequest) {
 
   for (const call of toolCalls) {
     if (noesis) {
+      // Enable policy evaluation for tool authorization
       await noesis.ingest({
         source: 'customer-support-agent',
         event_type: 'tool_call',
         trace_id: traceId,
+        evaluate: true,
         payload: {
           tool: call.tool,
           input: call.input,
+          intent: intent.intent,
         },
       }).catch(err => console.error('Failed to ingest tool_call:', err));
     }
@@ -82,12 +88,15 @@ export async function POST(request: NextRequest) {
   const responseMessage = generateResponse(intent, toolResults);
 
   if (noesis) {
+    // Enable policy evaluation on agent_response to check for PII, quality, etc.
     await noesis.ingest({
       source: 'customer-support-agent',
       event_type: 'agent_response',
       trace_id: traceId,
+      evaluate: true,
       payload: {
         response: responseMessage,
+        user_message: message,
         intent: intent.intent,
         confidence: intent.confidence,
         tools_used: toolCalls.map(t => t.tool),
