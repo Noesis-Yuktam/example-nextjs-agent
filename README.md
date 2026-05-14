@@ -219,6 +219,21 @@ This demo requires only an API key - no admin access needed. Contact your Noesis
 - Rate limits adjusted
 - Custom policies configured
 
+## Example Policies
+
+See [docs/example-policies.md](./docs/example-policies.md) for Rego policy examples tailored to this customer support agent:
+
+| Policy | Description |
+|--------|-------------|
+| **PII Guard** | Flags responses containing SSN, credit cards, or emails |
+| **Refund Authorization** | Requires approval for high-value refunds |
+| **Complaint Escalation** | Auto-escalates severe complaints |
+| **Confidence Guard** | Flags low-confidence intent classifications |
+| **Tool Authorization** | Controls tool usage based on context |
+| **Response Quality** | Ensures responses meet quality standards |
+| **Content Filter** | Blocks profanity and competitor mentions |
+| **Rate Control** | Prevents abuse and controls costs |
+
 ## License
 
 MIT
