@@ -44,6 +44,8 @@ Replace `YOUR_GITHUB_TOKEN` with your personal access token (needs `read:package
 
 ### 3. Install Dependencies
 
+This project uses **Noesis SDK v0.2.0**.
+
 ```bash
 npm install
 ```
