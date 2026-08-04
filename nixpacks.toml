@@ -1,0 +1,10 @@
+# Adds the Vector binary (log forwarding, see docker-entrypoint.sh) to the
+# default Nixpacks Node setup. nixPkgs here REPLACES rather than merges with
+# the auto-detected setup phase, so the base Node/npm packages must be
+# re-listed explicitly (verified via `nixpacks plan .`) -- see
+# https://nixos.org/manual/nixpkgs/stable/ for the "vector" package.
+[phases.setup]
+nixPkgs = ["nodejs_18", "npm-9_x", "vector"]
+
+[start]
+cmd = "sh docker-entrypoint.sh"
