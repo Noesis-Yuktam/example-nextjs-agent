@@ -1,0 +1,29 @@
+# Local Vector agent: reads the app's stdout (piped in by docker-entrypoint.sh)
+# and forwards it to VictoriaLogs. See noesis-core's observability/vector/ for
+# the central Vector service this complements (that one receives noesis-core's
+# structured slog pushes on VECTOR_URL directly; this one is a per-container
+# agent for an app whose logging we don't otherwise control).
+sources:
+  app_stdout:
+    type: stdin
+
+transforms:
+  enrich:
+    type: remap
+    inputs: ["app_stdout"]
+    source: |
+      .service = "example-nextjs-agent"
+      .railway_environment = "${RAILWAY_ENVIRONMENT_NAME:-local}"
+
+sinks:
+  # Vector's stdin source names the raw line "message" and the ingest
+  # timestamp "timestamp" (verified locally -- different from noesis-core's
+  # slog-based push, which uses "msg"/"time"; do not assume these match).
+  victorialogs:
+    type: http
+    inputs: ["enrich"]
+    uri: "${VICTORIALOGS_URL:-http://victorialogs.railway.internal:9428}/insert/jsonline?_stream_fields=service,railway_environment&_msg_field=message&_time_field=timestamp"
+    encoding:
+      codec: json
+    framing:
+      method: newline_delimited
