@@ -18,7 +18,6 @@ Before running this demo, you need credentials from your Noesis administrator:
 |------------|-------------|
 | **NOESIS_BASE_URL** | Your Noesis backend API endpoint |
 | **NOESIS_API_KEY** | API key for your registered agent |
-| **GitHub Token** | Personal access token with `read:packages` scope (for SDK installation) |
 
 Contact your Noesis administrator to provision an agent and receive these credentials.
 
@@ -31,26 +30,15 @@ git clone https://github.com/Noesis-Yuktam/example-nextjs-agent.git
 cd example-nextjs-agent
 ```
 
-### 2. Configure npm for GitHub Packages
+### 2. Install Dependencies
 
-Create or edit `~/.npmrc` (or `.npmrc` in your project root):
-
-```
-@noesis-yuktam:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=YOUR_GITHUB_TOKEN
-```
-
-Replace `YOUR_GITHUB_TOKEN` with your personal access token (needs `read:packages` scope).
-
-### 3. Install Dependencies
-
-This project uses **Noesis SDK v0.2.0**.
+`@noesis-yuktam/sdk` is published to the public npm registry, so no auth setup is needed:
 
 ```bash
 npm install
 ```
 
-### 4. Set Environment Variables
+### 3. Set Environment Variables
 
 Copy the example env file:
 
@@ -65,7 +53,7 @@ NOESIS_BASE_URL=https://your-instance.backend.noesis-yuktam.com
 NOESIS_API_KEY=noesis_xxxxxxxxxxxxxxxx
 ```
 
-### 5. Run the Development Server
+### 4. Run the Development Server
 
 ```bash
 npm run dev
@@ -163,7 +151,6 @@ railway link --service example-nextjs-agent
 
 - `NOESIS_BASE_URL` - Your Noesis backend API endpoint (from Noesis admin)
 - `NOESIS_API_KEY` - Your agent's API key (from Noesis admin)
-- `NPM_TOKEN` - GitHub token with `read:packages` scope
 
 4. **Deploy:**
 
@@ -196,15 +183,10 @@ example-nextjs-agent/
 │   └── types/
 │       └── index.ts          # TypeScript types
 ├── .env.example              # Environment variables template
-├── .npmrc                    # npm config for GitHub Packages (uses env vars)
 └── railway.json              # Railway deployment config
 ```
 
 ## Troubleshooting
-
-### "Not found" error when installing SDK
-
-Ensure your `.npmrc` is configured correctly with a valid GitHub token that has `read:packages` scope.
 
 ### Events not appearing in Noesis
 

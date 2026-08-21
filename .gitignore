@@ -16,8 +16,6 @@ dist/
 .env.test.local
 .env.production.local
 
-# NPM config with hardcoded tokens (the checked-in .npmrc uses env vars)
-# .npmrc
 
 # Debug logs
 npm-debug.log*
