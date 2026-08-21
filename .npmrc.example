@@ -1,5 +1,0 @@
-# Configure npm to use GitHub Packages for @noesis-yuktam scope
-# Replace YOUR_GITHUB_TOKEN with a personal access token that has read:packages permission
-
-@noesis-yuktam:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=YOUR_GITHUB_TOKEN
